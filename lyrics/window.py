@@ -64,6 +64,8 @@ class Key:
 			window.current_pos = 0
 			window.player.refresh(cache=True)
 			window.update_track()
+		elif key == self.binds['find']:
+			window.find()
 
 		# autoswitch toggle
 		elif key == self.binds['autoswitchtoggle']:
@@ -193,6 +195,36 @@ class Window:
 				self.stdscr.move(self.height - 1, 0)
 				self.stdscr.clrtoeol()
 			self.current_pos -= step
+
+	def find(self):
+		# wait for input
+		self.stdscr.timeout(-1)
+		prompt = ':'
+		self.stdscr.addstr(self.height - 1, 2, prompt)
+		# show cursor and key presses
+		curses.echo()
+		curses.curs_set(1)
+
+		search = self.stdscr.getstr(self.height - 1, len(prompt)+2, 15).decode(encoding="utf-8").lower().strip()
+		text = self.player.track.get_text().lower()
+
+		# hide cursor and key presses
+		curses.curs_set(0)
+		curses.noecho()
+
+		indices = [index for index in range(len(text)) if text.startswith(search, index)]
+		if search in text:
+			output = f'{indices} found!'
+		else:
+			output = 'not found!'
+		self.stdscr.insstr(self.height - 1, self.width-len(output)-1, output)
+
+		# timeout or key press
+		self.stdscr.timeout(1500)
+		self.stdscr.getch()
+
+		self.stdscr.clear()
+		self.stdscr.refresh()
 
 	def update_track(self):
 		self.stdscr.clear()
