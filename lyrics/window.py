@@ -205,7 +205,8 @@ class Window:
 		curses.echo()
 		curses.curs_set(1)
 
-		search = self.stdscr.getstr(self.height - 1, len(prompt)+2, 15).decode(encoding="utf-8").lower().strip()
+		# (y, x, input max length)
+		search = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
 		text = self.player.track.get_text().lower()
 
 		# hide cursor and key presses
@@ -215,12 +216,14 @@ class Window:
 		# TODO: track which index is in focus
 		indices = [index for index in range(len(text)) if text.startswith(search, index)]
 		if search in text:
-			output = f'{indices} found!'
+			output = f' {indices} FOUND! '
 			# TODO: move text to the position of index
 			# TODO: highlight some/all matches
 		else:
-			output = 'not found!'
-		self.stdscr.insstr(self.height - 1, self.width-len(output)-1, output)
+			output = ' NOT FOUND! '
+		self.stdscr.attrset(curses.A_STANDOUT)
+		self.stdscr.insstr(self.height - 1, self.width-len(output), output)
+		self.stdscr.attrset(curses.A_NORMAL)
 
 		# TODO: shortcuts for (n)ext/(p)revious occurrence
 		# timeout or key press
