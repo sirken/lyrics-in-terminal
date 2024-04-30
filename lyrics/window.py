@@ -212,13 +212,17 @@ class Window:
 		curses.curs_set(0)
 		curses.noecho()
 
+		# TODO: track which index is in focus
 		indices = [index for index in range(len(text)) if text.startswith(search, index)]
 		if search in text:
 			output = f'{indices} found!'
+			# TODO: move text to the position of index
+			# TODO: highlight some/all matches
 		else:
 			output = 'not found!'
 		self.stdscr.insstr(self.height - 1, self.width-len(output)-1, output)
 
+		# TODO: shortcuts for (n)ext/(p)revious occurrence
 		# timeout or key press
 		self.stdscr.timeout(1500)
 		self.stdscr.getch()
