@@ -200,7 +200,7 @@ class Window:
 		# wait for input
 		self.stdscr.timeout(-1)
 		prompt = ':'
-		self.stdscr.addstr(self.height - 1, 2, prompt)
+		self.stdscr.addstr(self.height - 1, self.pad_offset, prompt)
 		# show cursor and key presses
 		curses.echo()
 		curses.curs_set(1)
@@ -215,7 +215,7 @@ class Window:
 
 		# TODO: track which index is in focus
 		indices = [index for index in range(len(text)) if text.startswith(search, index)]
-		if search in text:
+		if len(search) > 0 and search in text:
 			output = f' {indices} FOUND! '
 			# TODO: move text to the position of index
 			# TODO: highlight some/all matches
