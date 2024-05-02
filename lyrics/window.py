@@ -145,6 +145,7 @@ class Window:
 		self.pad_offset = 1
 		self.text_padding = 5
 		self.keys = Key()
+		self.find_position = 0
 
 		curses.use_default_colors()
 		self.stdscr.timeout(timeout)
@@ -206,32 +207,72 @@ class Window:
 		curses.curs_set(1)
 
 		# (y, x, input max length)
-		search = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
+		find = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
 		text = self.player.track.get_text().lower()
+		lines = text.split('\n')
 
 		# hide cursor and key presses
-		curses.curs_set(0)
-		curses.noecho()
+		# curses.curs_set(0)
+		# curses.noecho()
 
-		# TODO: track which index is in focus
-		indices = [index for index in range(len(text)) if text.startswith(search, index)]
-		if len(search) > 0 and search in text:
-			output = f' {indices} FOUND! '
-			# TODO: move text to the position of index
-			# TODO: highlight some/all matches
-		else:
-			output = ' NOT FOUND! '
-		self.stdscr.attrset(curses.A_STANDOUT)
-		self.stdscr.insstr(self.height - 1, self.width-len(output), output)
-		self.stdscr.attrset(curses.A_NORMAL)
+		# TODO: navigate (n)ext/(p)revious instead of going straight through matches
+		# TODO: highlight some/all matches
+		# TODO: change indices to lines that match, multiple occurrences in a line = 1 match
+		indices = [index for index in range(len(text)) if text.startswith(find, index)]
+		# indices = [index for index in range(len(text)) if text.startswith('\n', index)]
+		output = ''
+		if len(find) > 0:
+			if find in text:
 
-		# TODO: shortcuts for (n)ext/(p)revious occurrence
-		# timeout or key press
-		self.stdscr.timeout(1500)
-		self.stdscr.getch()
+				for line_num, line in enumerate(lines):
 
+					if find in line:
+						output += f'{line_num},{line.index(find)} '
+
+						self.current_pos = line_num
+
+						# duplicated from main()
+						self.stdscr.clear()
+						self.set_titlebar()
+						self.stdscr.refresh()
+						self.scroll_pad.refresh(self.current_pos, 0, 4, self.pad_offset, self.height - 2, self.width - 1)
+
+						# temp stats
+						self.stdscr.addstr(3, self.width - 10, f'{self.find_position}/{len(indices)}  {str(self.current_pos)}')
+						self.stdscr.clrtoeol()
+
+						# after finding a match in a line, stop, wait for input
+						self.stdscr.timeout(-1)
+						key = self.stdscr.getch()
+
+						if key == self.keys.binds['find_next']:
+							self.stdscr.addstr(self.height - 1, self.width - 3, 'n ')
+							self.stdscr.clrtoeol()
+							# reached end of matches, loop back to start
+							if self.find_position+1 >= len(indices):
+								self.find_position = 0
+							else:
+								self.find_position += 1
+						elif key == self.keys.binds['find_prev']:
+							self.stdscr.addstr(self.height - 1, self.width - 3, 'p ')
+							self.stdscr.clrtoeol()
+							if self.find_position-1 < 0:
+								self.find_position = len(indices)-1
+							else:
+								self.find_position -= 1
+						# Esc
+						elif key == 27 or key == self.keys.binds['quit']:
+							break
+
+			else:
+				output = ' NOT FOUND! '
+				self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
+				# timeout or key press
+				self.stdscr.timeout(2000)
+				self.stdscr.getch()
+
+		# clear search line
 		self.stdscr.clear()
-		self.stdscr.refresh()
 
 	def update_track(self):
 		self.stdscr.clear()
