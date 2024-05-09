@@ -208,9 +208,9 @@ class Window:
 		curses.curs_set(1)
 
 		# (y, x, input max length)
-		find = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
+		find_string = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
 
-		if find:
+		if find_string:
 			# use word wrap which covers both wrap/nowrap and ensures line count is accurate
 			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
 			lines = text.split('\n')
@@ -218,7 +218,7 @@ class Window:
 			# [0,2,4] list of lines that contain a match
 			lines_map = []
 			for line_num, line in enumerate(lines):
-				if find in line:
+				if find_string in line:
 					lines_map.append(line_num)
 
 			# print(lines_map)
@@ -238,14 +238,15 @@ class Window:
 			# TODO: show scroll percentage
 			# TODO: make up scroll go further
 			# TODO: cancel find if only one match
+			# TODO: update find variable to find_string
 			# indices = [index for index in range(len(text)) if text.startswith(find, index)]
 			# # indices = [index for index in range(len(text)) if text.startswith('\n', index)]
 			# output = ''
 			if len(lines_map) > 0:
 
 				# new find
-				if self.find_string != find:
-					self.find_string = find
+				if self.find_string != find_string:
+					self.find_string = find_string
 					# TODO: search from current position
 					# if max(lines_map) > self.find_position:
 					# 	for line in lines_map:
@@ -270,7 +271,7 @@ class Window:
 					self.stdscr.addstr(self.height - 1, self.pad_offset, f'{pct_progress}%  F{self.find_position}/{len(lines_map)-1}  LN{str(self.current_pos)}, {self.find_string}, L{len(lines)}')
 					# self.stdscr.addstr(3, self.width - 20, f'{self.find_position}/{len(lines_map)-1}  {str(self.current_pos)}, {self.find_string}')
 					self.stdscr.clrtoeol()
-					output = f' {find} '
+					output = f' {find_string} '
 					self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
 
 					# single match, exit directly?
