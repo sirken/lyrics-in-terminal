@@ -274,10 +274,12 @@ class Window:
 					output = f' {find_string} '
 					self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
 
-					# single match, exit directly?
-					# if len(lines_map) == 1:
-					# 	self.find_position = 0
-					# 	break
+					# single match, show brief status and exit
+					if len(lines_map) == 1:
+						self.find_position = 0
+						self.stdscr.timeout(2000)
+						self.stdscr.getch()
+						break
 
 					# after finding a match in a line, stop, wait for input
 					self.stdscr.timeout(-1)
