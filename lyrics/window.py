@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from time import sleep
 
 from lyrics.player import Player
 from lyrics.config import Config
@@ -209,18 +210,10 @@ class Window:
 
 		# (y, x, input max length)
 		find = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
+
 		if find:
-			# handle wrapping
-			if self.player.track.width > self.width - self.text_padding:
-				text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
-			else:
-				text = self.player.track.get_text().lower()
-
-			text_wrap = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
-			text_wrap_lines = len(text_wrap.split('\n'))
-			text_nowrap = self.player.track.get_text().lower()
-			text_nowrap_lines = len(text_nowrap.split('\n'))
-
+			# use word wrap which takes care of wrap/nowrap and ensures line count is accurate
+			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
 			lines = text.split('\n')
 
 			# [0,2,4]
@@ -245,7 +238,6 @@ class Window:
 			# TODO: show n/p on screen
 			# TODO: show scroll percentage
 			# TODO: make up scroll go further
-			# TODO: [bug] long lines that wrap cause search to be incorrectly offset
 			# TODO: cancel find if only one match
 			# indices = [index for index in range(len(text)) if text.startswith(find, index)]
 			# # indices = [index for index in range(len(text)) if text.startswith('\n', index)]
@@ -276,7 +268,7 @@ class Window:
 
 					# temp stats
 					pct_progress = int(self.current_pos * 100 / len(text) * 100)
-					self.stdscr.addstr(self.height - 1, self.pad_offset, f'{pct_progress}%  F{self.find_position}/{len(lines_map)-1}  LN{str(self.current_pos)}, {self.find_string}, W{text_wrap_lines}/NW{text_nowrap_lines}/L{len(lines)}')
+					self.stdscr.addstr(self.height - 1, self.pad_offset, f'{pct_progress}%  F{self.find_position}/{len(lines_map)-1}  LN{str(self.current_pos)}, {self.find_string}, L{len(lines)}')
 					# self.stdscr.addstr(3, self.width - 20, f'{self.find_position}/{len(lines_map)-1}  {str(self.current_pos)}, {self.find_string}')
 					self.stdscr.clrtoeol()
 
