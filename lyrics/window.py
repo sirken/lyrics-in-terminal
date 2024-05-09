@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from time import sleep
 
 from lyrics.player import Player
 from lyrics.config import Config
@@ -267,7 +266,7 @@ class Window:
 					self.scroll_pad.refresh(self.current_pos, 0, 4, self.pad_offset, self.height - 2, self.width - 1)
 
 					# temp stats
-					pct_progress = int(self.current_pos * 100 / len(text) * 100)
+					pct_progress = int(self.current_pos * 100 / len(lines)) + 1
 					self.stdscr.addstr(self.height - 1, self.pad_offset, f'{pct_progress}%  F{self.find_position}/{len(lines_map)-1}  LN{str(self.current_pos)}, {self.find_string}, L{len(lines)}')
 					# self.stdscr.addstr(3, self.width - 20, f'{self.find_position}/{len(lines_map)-1}  {str(self.current_pos)}, {self.find_string}')
 					self.stdscr.clrtoeol()
