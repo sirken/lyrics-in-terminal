@@ -232,13 +232,11 @@ class Window:
 			# curses.curs_set(0)
 			# curses.noecho()
 
-			# TODO: navigate (n)ext/(p)revious instead of going straight through matches
 			# TODO: highlight some/all matches
 			# TODO: show n/p on screen
-			# TODO: show scroll percentage
+			# TODO: show scroll percentage always?
 			# TODO: make up scroll go further
-			# TODO: cancel find if only one match
-			# TODO: update find variable to find_string
+			# TODO: show actual text from the line?
 			# indices = [index for index in range(len(text)) if text.startswith(find, index)]
 			# # indices = [index for index in range(len(text)) if text.startswith('\n', index)]
 			# output = ''
