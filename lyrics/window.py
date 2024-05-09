@@ -212,11 +212,11 @@ class Window:
 		find = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
 
 		if find:
-			# use word wrap which takes care of wrap/nowrap and ensures line count is accurate
+			# use word wrap which covers both wrap/nowrap and ensures line count is accurate
 			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
 			lines = text.split('\n')
 
-			# [0,2,4]
+			# [0,2,4] list of lines that contain a match
 			lines_map = []
 			for line_num, line in enumerate(lines):
 				if find in line:
@@ -271,6 +271,13 @@ class Window:
 					self.stdscr.addstr(self.height - 1, self.pad_offset, f'{pct_progress}%  F{self.find_position}/{len(lines_map)-1}  LN{str(self.current_pos)}, {self.find_string}, L{len(lines)}')
 					# self.stdscr.addstr(3, self.width - 20, f'{self.find_position}/{len(lines_map)-1}  {str(self.current_pos)}, {self.find_string}')
 					self.stdscr.clrtoeol()
+					output = f' {find} '
+					self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
+
+					# single match, exit directly?
+					# if len(lines_map) == 1:
+					# 	self.find_position = 0
+					# 	break
 
 					# after finding a match in a line, stop, wait for input
 					self.stdscr.timeout(-1)
