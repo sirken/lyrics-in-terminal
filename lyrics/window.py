@@ -273,9 +273,6 @@ class Window:
 					self.stdscr.refresh()
 					self.scroll_pad.refresh(self.current_pos, 0, 4, self.pad_offset, self.height - 2, self.width - 1)
 
-					# temp stats
-					pct_progress = int(self.current_pos * 100 / len(lines)) + 1
-
 					find_string_output = f' {find_string} '
 					find_count_output = f" {self.find_position + 1}/{len(lines_map)} "
 					help_output = f"[{chr(self.keys.binds['find-next'])}]=next, [{chr(self.keys.binds['find-prev'])}]=prev"
@@ -310,12 +307,8 @@ class Window:
 							self.find_position = len(lines_map)-1
 						else:
 							self.find_position -= 1
-					# Esc
-					# elif key == 27 or key == self.keys.binds['quit']:
-					# 	break
 					else:
 						break
-
 			else:
 				output = ' NOT FOUND! '
 				self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
