@@ -278,6 +278,16 @@ class Window:
 					# overwrite the text with a highlight
 					self.stdscr.addstr(4, self.pad_offset + find_string_pos, find_string_extract, curses.A_REVERSE)
 
+					# TODO: highlight all matches in the line
+					# BUG: blank areas between multiple matches in a line
+					# find_list = [i for i in range(len(line_text)) if line_text.startswith(find_string, i)]
+					# for f in find_list:
+					# 	# extract the actual text from the line to preserve case
+					# 	find_string_extract = line_text[f:f + len(find_string)]
+					# 	# overwrite the text with a highlight
+					# 	self.stdscr.move(4, self.pad_offset + f)
+					# 	self.stdscr.addstr(find_string_extract, curses.A_REVERSE)
+
 					# single match, show brief status and exit
 					if len(lines_map) == 1:
 						self.find_position = 0
