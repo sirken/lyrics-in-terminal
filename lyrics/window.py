@@ -174,6 +174,16 @@ class Window:
 		self.stdscr.addstr(1, 1, track_info[1], 
 					curses.A_REVERSE | curses.A_BOLD | curses.A_DIM)
 		self.stdscr.addstr(2, 1, track_info[2], curses.A_REVERSE)
+
+	def set_statusbar(self):
+		text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
+		lines = text.split('\n')
+		if self.current_pos < 0:
+			self.current_pos = 0
+		pct_progress = f' {int(self.current_pos * 100 / len(lines)) + 1}% '
+		self.stdscr.move(self.height - 1, 0)
+		self.stdscr.clrtoeol()
+		self.stdscr.insstr(self.height - 1, self.width - len(pct_progress), pct_progress, curses.A_REVERSE)
 		
 	def set_offset(self):
 		if self.player.track.alignment == 0:
@@ -335,6 +345,7 @@ class Window:
 		self.set_offset()	
 		
 	def main(self):
+		self.options = Config('OPTIONS')
 		key = ''
 
 		while key != self.keys.binds['quit']:
@@ -351,6 +362,8 @@ class Window:
 				self.keys.input(self, key)
 
 				self.set_titlebar()
+				if self.options['statusbar'] == 'on':
+					self.set_statusbar()
 				self.stdscr.refresh()
 				self.scroll_pad.refresh(self.current_pos, 0, 4, 
 							self.pad_offset, self.height - 2, self.width - 1)
