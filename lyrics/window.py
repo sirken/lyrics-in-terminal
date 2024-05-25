@@ -266,18 +266,21 @@ class Window:
 
 					# temp stats
 					pct_progress = int(self.current_pos * 100 / len(lines)) + 1
-					self.stdscr.addstr(self.height - 1, self.pad_offset, f'{pct_progress}%  F{self.find_position}/{len(lines_map)-1}  LN{str(self.current_pos)}, {self.find_string}, L{len(lines)}')
-					# self.stdscr.addstr(3, self.width - 20, f'{self.find_position}/{len(lines_map)-1}  {str(self.current_pos)}, {self.find_string}')
-					self.stdscr.clrtoeol()
-					output = f' {find_string} '
-					self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
+
+					find_string_output = f' {find_string} '
+					find_count_output = f" {self.find_position + 1}/{len(lines_map)} "
+					help_output = f"[{chr(self.keys.binds['find_next'])}]=next, [{chr(self.keys.binds['find_prev'])}]=prev"
+					self.stdscr.addstr(self.height - 1, self.pad_offset, find_string_output, curses.A_REVERSE)
+					self.stdscr.insstr(self.height - 1, self.width - len(find_count_output), find_count_output, curses.A_REVERSE)
 
 					# single match, show brief status and exit
 					if len(lines_map) == 1:
 						self.find_position = 0
-						self.stdscr.timeout(2000)
+						self.stdscr.timeout(5000)
 						self.stdscr.getch()
 						break
+					else:
+						self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 2, help_output)
 
 					# after finding a match in a line, stop, wait for input
 					self.stdscr.timeout(-1)
@@ -308,7 +311,7 @@ class Window:
 				output = ' NOT FOUND! '
 				self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
 				# timeout or key press
-				self.stdscr.timeout(2000)
+				self.stdscr.timeout(5000)
 				self.stdscr.getch()
 
 		# clear search line
