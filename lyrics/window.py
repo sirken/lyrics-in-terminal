@@ -181,7 +181,8 @@ class Window:
 		if self.current_pos < 0:
 			self.current_pos = 0
 		pct_progress = f' {int(self.current_pos * 100 / len(lines)) + 1}% '
-		self.stdscr.move(self.height - 1, 0)
+		# clear end of status line
+		self.stdscr.move(self.height - 1, self.width - len(pct_progress) - 2)
 		self.stdscr.clrtoeol()
 		# self.stdscr.addstr(self.height - 1, self.pad_offset, f'FP{self.find_position}, CP{self.current_pos}', curses.A_REVERSE)
 		self.stdscr.insstr(self.height - 1, self.width - len(pct_progress), pct_progress, curses.A_REVERSE)
@@ -196,9 +197,10 @@ class Window:
 			self.pad_offset = (self.width - self.player.track.width)
 	
 	def scroll_down(self, step=1):
-		if self.current_pos < self.player.track.length - (self.height * 0.5):
+		if self.current_pos < self.player.track.length - step:
 			self.current_pos += step
 		else:
+			self.current_pos = self.player.track.length - 1
 			self.stdscr.addstr(self.height - 1, 1, 'END', curses.A_REVERSE)
 
 	def scroll_up(self, step=1):
@@ -237,11 +239,7 @@ class Window:
 				if find_string in line.lower():
 					lines_map.append(line_num)
 
-
-			# TODO: make up scroll go further
-
 			if len(lines_map) > 0:
-
 				# new find
 				if self.find_string != find_string:
 					self.find_string = find_string
