@@ -269,7 +269,7 @@ class Window:
 
 					find_string_output = f' {find_string} '
 					find_count_output = f" {self.find_position + 1}/{len(lines_map)} "
-					help_output = f"[{chr(self.keys.binds['find_next'])}]=next, [{chr(self.keys.binds['find_prev'])}]=prev"
+					help_output = f"[{chr(self.keys.binds['find-next'])}]=next, [{chr(self.keys.binds['find-prev'])}]=prev"
 					self.stdscr.addstr(self.height - 1, self.pad_offset, find_string_output, curses.A_REVERSE)
 					self.stdscr.insstr(self.height - 1, self.width - len(find_count_output), find_count_output, curses.A_REVERSE)
 
@@ -286,7 +286,7 @@ class Window:
 					self.stdscr.timeout(-1)
 					key = self.stdscr.getch()
 
-					if key == self.keys.binds['find_next']:
+					if key == self.keys.binds['find-next']:
 						self.stdscr.addstr(self.height - 1, self.width - 3, 'n ')
 						self.stdscr.clrtoeol()
 						# reached end of matches, loop back to start
@@ -294,7 +294,7 @@ class Window:
 							self.find_position = 0
 						else:
 							self.find_position += 1
-					elif key == self.keys.binds['find_prev']:
+					elif key == self.keys.binds['find-prev']:
 						self.stdscr.addstr(self.height - 1, self.width - 3, 'p ')
 						self.stdscr.clrtoeol()
 						if self.find_position-1 < 0:
