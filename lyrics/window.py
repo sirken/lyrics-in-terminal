@@ -254,14 +254,15 @@ class Window:
 				# new find
 				if self.find_string != find_string:
 					self.find_string = find_string
-					# continue search from current position
-					for line in lines_map:
-						if line >= self.current_pos:
-							self.find_position = lines_map.index(line)
-							break
-					# otherwise loop back to the start
-					else:
-						self.find_position = 0
+
+				# continue search from current position
+				for line in lines_map:
+					if line >= self.current_pos:
+						self.find_position = lines_map.index(line)
+						break
+				# otherwise loop back to the start
+				else:
+					self.find_position = 0
 
 
 				while True:
