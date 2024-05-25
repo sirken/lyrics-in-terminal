@@ -183,6 +183,7 @@ class Window:
 		pct_progress = f' {int(self.current_pos * 100 / len(lines)) + 1}% '
 		self.stdscr.move(self.height - 1, 0)
 		self.stdscr.clrtoeol()
+		# self.stdscr.addstr(self.height - 1, self.pad_offset, f'FP{self.find_position}, CP{self.current_pos}', curses.A_REVERSE)
 		self.stdscr.insstr(self.height - 1, self.width - len(pct_progress), pct_progress, curses.A_REVERSE)
 		
 	def set_offset(self):
@@ -243,8 +244,6 @@ class Window:
 			# curses.noecho()
 
 			# TODO: highlight some/all matches
-			# TODO: show n/p on screen
-			# TODO: show scroll percentage always?
 			# TODO: make up scroll go further
 			# TODO: show actual text from the line?
 			# indices = [index for index in range(len(text)) if text.startswith(find, index)]
@@ -255,15 +254,14 @@ class Window:
 				# new find
 				if self.find_string != find_string:
 					self.find_string = find_string
-					# TODO: search from current position
-					# if max(lines_map) > self.find_position:
-					# 	for line in lines_map:
-					# 		if line > self.find_position:
-					# 			self.find_position = line
-					# 			break
-					# or loop back to start
-					# else:
-					self.find_position = 0
+					# continue search from current position
+					for line in lines_map:
+						if line >= self.current_pos:
+							self.find_position = lines_map.index(line)
+							break
+					# otherwise loop back to the start
+					else:
+						self.find_position = 0
 
 
 				while True:
