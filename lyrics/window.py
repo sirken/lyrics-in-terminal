@@ -230,7 +230,7 @@ class Window:
 			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding)
 			lines = text.split('\n')
 
-			# [0,2,4] list of lines that contain a match
+			# [0,9,10,14] list of lines that contain a match
 			lines_map = []
 			for line_num, line in enumerate(lines):
 				# case-insensitive match
@@ -248,6 +248,7 @@ class Window:
 
 				# continue search from current position
 				for line in lines_map:
+					# >= causes us to stay on the current line for new searches
 					if line >= self.current_pos:
 						self.find_position = lines_map.index(line)
 						break
@@ -255,10 +256,11 @@ class Window:
 				else:
 					self.find_position = 0
 
-
 				while True:
+					# update current position based on where we are at in the find
 					self.current_pos = lines_map[self.find_position]
-					# duplicated from main()
+
+					# duplicated from main() to manually refresh on find
 					self.stdscr.clear()
 					self.set_titlebar()
 					self.stdscr.refresh()
