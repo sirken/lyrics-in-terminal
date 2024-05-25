@@ -214,41 +214,32 @@ class Window:
 		self.stdscr.timeout(-1)
 		prompt = ':'
 		self.stdscr.addstr(self.height - 1, self.pad_offset, prompt)
-		# show cursor and key presses
+		# show cursor and key presses during find
 		curses.echo()
 		curses.curs_set(1)
 
-		# (y, x, input max length)
+		# (y, x, input max length), case-insensitive
 		find_string = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
+
+		# hide cursor and key presses
+		curses.curs_set(0)
+		curses.noecho()
 
 		if find_string:
 			# use word wrap which covers both wrap/nowrap and ensures line count is accurate
-			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
+			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding)
 			lines = text.split('\n')
 
 			# [0,2,4] list of lines that contain a match
 			lines_map = []
 			for line_num, line in enumerate(lines):
-				if find_string in line:
+				# case-insensitive match
+				if find_string in line.lower():
 					lines_map.append(line_num)
 
-			# print(lines_map)
-			# self.stdscr.timeout(3000)
-			# self.stdscr.getch()
 
-			# self.player.track.text = '\n'.join(lines)
-
-
-			# hide cursor and key presses
-			# curses.curs_set(0)
-			# curses.noecho()
-
-			# TODO: highlight some/all matches
 			# TODO: make up scroll go further
-			# TODO: show actual text from the line?
-			# indices = [index for index in range(len(text)) if text.startswith(find, index)]
-			# # indices = [index for index in range(len(text)) if text.startswith('\n', index)]
-			# output = ''
+
 			if len(lines_map) > 0:
 
 				# new find
@@ -278,6 +269,14 @@ class Window:
 					help_output = f"[{chr(self.keys.binds['find-next'])}]=next, [{chr(self.keys.binds['find-prev'])}]=prev"
 					self.stdscr.addstr(self.height - 1, self.pad_offset, find_string_output, curses.A_REVERSE)
 					self.stdscr.insstr(self.height - 1, self.width - len(find_count_output), find_count_output, curses.A_REVERSE)
+
+					# highlight found text
+					line_text = lines[self.current_pos]
+					find_string_pos = line_text.lower().index(find_string)
+					# extract the actual text from the line to preserve case
+					find_string_extract = line_text[find_string_pos:find_string_pos + len(find_string)]
+					# overwrite the text with a highlight
+					self.stdscr.addstr(4, self.pad_offset + find_string_pos, find_string_extract, curses.A_REVERSE)
 
 					# single match, show brief status and exit
 					if len(lines_map) == 1:
