@@ -282,17 +282,12 @@ class Window:
 							attr = curses.A_REVERSE
 						self.stdscr.addch(4, self.pad_offset + cpos, char, attr)
 
-					# single match, show brief status and exit
-					if len(lines_map) == 1:
-						self.find_position = 0
-						self.stdscr.timeout(5000)
-						self.stdscr.getch()
-						break
-					else:
+					# multiple matches, show next/prev help
+					if len(lines_map) > 1:
 						self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 2, help_output)
 
 					# after finding a match in a line, stop, wait for input
-					self.stdscr.timeout(-1)
+					self.stdscr.timeout(10000)
 					key = self.stdscr.getch()
 
 					if key == self.keys.binds['find-next']:
@@ -310,11 +305,21 @@ class Window:
 							self.find_position = len(lines_map)-1
 						else:
 							self.find_position -= 1
+					# other keys for more accessibility
 					elif key == self.keys.binds['down']:
 						self.scroll_down()
 						break
 					elif key == self.keys.binds['up']:
 						self.scroll_up()
+						break
+					elif key == self.keys.binds['step-down']:
+						self.scroll_down(self.keys.binds['step-size'])
+						break
+					elif key == self.keys.binds['step-up']:
+						self.scroll_up(self.keys.binds['step-size'])
+						break
+					elif key == self.keys.binds['find']:
+						self.find()
 						break
 					else:
 						break
