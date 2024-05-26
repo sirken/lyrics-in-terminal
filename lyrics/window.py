@@ -176,7 +176,7 @@ class Window:
 		self.stdscr.addstr(2, 1, track_info[2], curses.A_REVERSE)
 
 	def set_statusbar(self):
-		text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding).lower()
+		text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding)
 		lines = text.split('\n')
 		if self.current_pos < 0:
 			self.current_pos = 0
@@ -222,7 +222,7 @@ class Window:
 		curses.curs_set(1)
 
 		# (y, x, input max length), case-insensitive
-		find_string = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").lower().strip()
+		find_string = self.stdscr.getstr(self.height - 1, len(prompt)+self.pad_offset, 100).decode(encoding="utf-8").strip()
 
 		# hide cursor and key presses
 		curses.curs_set(0)
@@ -237,7 +237,7 @@ class Window:
 			lines_map = []
 			for line_num, line in enumerate(lines):
 				# case-insensitive match
-				if find_string in line.lower():
+				if find_string.lower() in line.lower():
 					lines_map.append(line_num)
 
 			if len(lines_map) > 0:
@@ -273,28 +273,26 @@ class Window:
 
 					# highlight found text
 					line_text = lines[self.current_pos]
-					found_index_list = [i for i in range(len(line_text)) if line_text.startswith(find_string, i)]
+					# case-insensitive
+					found_index_list = [i for i in range(len(line_text)) if line_text.lower().startswith(find_string.lower(), i)]
 
 					# TEMP status
 					fl = ','.join([str(i) for i in found_index_list])
 					self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 20, str(fl))
 					# self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 20, line_text[:10])
 
-					# loop over all line text chars, highlight found matches
-					# TODO: words with caps not highlighting
+					# loop over each character in the line, highlight found strings
 					highlight_end = -1
 					for cpos, char in enumerate(line_text):
-						# start of word
+						attr = curses.A_NORMAL
+						# start of found string
 						if cpos in found_index_list:
 							highlight_end = cpos + len(find_string)
-							self.stdscr.addstr(4, self.pad_offset + cpos, char, curses.A_REVERSE)
-						# inside word
+							attr = curses.A_REVERSE
+						# inside string
 						elif highlight_end > cpos:
-							self.stdscr.addstr(4, self.pad_offset + cpos, char, curses.A_REVERSE)
-						# other chars
-						else:
-							self.stdscr.addch(4, self.pad_offset + cpos, char)
-
+							attr = curses.A_REVERSE
+						self.stdscr.addch(4, self.pad_offset + cpos, char, attr)
 
 					# single match, show brief status and exit
 					if len(lines_map) == 1:
