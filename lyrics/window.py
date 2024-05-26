@@ -147,7 +147,6 @@ class Window:
 		self.text_padding = 5
 		self.keys = Key()
 		self.find_position = 0
-		self.find_string = ''
 
 		curses.use_default_colors()
 		self.stdscr.timeout(timeout)
@@ -238,13 +237,10 @@ class Window:
 					lines_map.append(line_num)
 
 			if len(lines_map) > 0:
-				# new find
-				if self.find_string != find_string:
-					self.find_string = find_string
 
 				# continue search from current position
 				for line in lines_map:
-					# >= causes us to stay on the current line for new searches
+					# >= causes us to stay on the current line for a new search
 					if line >= self.current_pos:
 						self.find_position = lines_map.index(line)
 						break
@@ -314,6 +310,12 @@ class Window:
 							self.find_position = len(lines_map)-1
 						else:
 							self.find_position -= 1
+					elif key == self.keys.binds['down']:
+						self.scroll_down()
+						break
+					elif key == self.keys.binds['up']:
+						self.scroll_up()
+						break
 					else:
 						break
 			else:
