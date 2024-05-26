@@ -181,13 +181,8 @@ class Window:
 		if self.current_pos < 0:
 			self.current_pos = 0
 		pct_progress = f' {int(self.current_pos * 100 / len(lines)) + 1}% '
-		# clear end of status line
-		self.stdscr.move(self.height - 1, self.width - len(pct_progress) - 2)
-		self.stdscr.clrtoeol()
-		# TODO: make status less visible?
-		# self.stdscr.addstr(self.height - 1, self.pad_offset, f'FP{self.find_position}, CP{self.current_pos}', curses.A_REVERSE)
-		self.stdscr.insstr(self.height - 1, self.width - len(pct_progress), pct_progress, curses.A_REVERSE)
-		
+		self.stdscr.insstr(self.height - 1, self.width - len(pct_progress), pct_progress, curses.A_DIM)
+
 	def set_offset(self):
 		if self.player.track.alignment == 0:
 				# center align
@@ -275,11 +270,6 @@ class Window:
 					line_text = lines[self.current_pos]
 					# case-insensitive
 					found_index_list = [i for i in range(len(line_text)) if line_text.lower().startswith(find_string.lower(), i)]
-
-					# TEMP status
-					fl = ','.join([str(i) for i in found_index_list])
-					self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 20, str(fl))
-					# self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 20, line_text[:10])
 
 					# loop over each character in the line, highlight found strings
 					highlight_end = -1
