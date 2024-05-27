@@ -51,7 +51,7 @@ class Key:
 
 		elif key == self.binds['delete']:
 			if window.player.track.delete_lyrics():
-				window.stdscr.addstr(window.height - 1, 1,
+				window.stdscr.addstr(window.height - 1, window.width - 10,
 							' Deleted ', curses.A_REVERSE)
 		elif key == self.binds['help']:
 			window.stdscr.erase()
@@ -70,7 +70,7 @@ class Key:
 		# autoswitch toggle
 		elif key == self.binds['autoswitchtoggle']:
 			window.player.autoswitch = not window.player.autoswitch
-			window.stdscr.addstr(window.height - 1, 1,
+			window.stdscr.addstr(window.height - 1, window.width - 18,
 			                     f" Autoswitch: {'on' if window.player.autoswitch else 'off'} ", curses.A_REVERSE)
 
 class HelpPage:
@@ -175,15 +175,6 @@ class Window:
 					curses.A_REVERSE | curses.A_BOLD | curses.A_DIM)
 		self.stdscr.addstr(2, 1, track_info[2], curses.A_REVERSE)
 
-	def set_statusbar(self):
-		if self.options['statusbar'] == 'on':
-			text = self.player.track.get_text(wrap=True, width=self.width - self.text_padding)
-			lines = text.split('\n')
-			if self.current_pos < 0:
-				self.current_pos = 0
-			pct_progress = f' {int(self.current_pos * 100 / len(lines)) + 1}% '
-			self.stdscr.insstr(self.height - 1, self.width - len(pct_progress), pct_progress, curses.A_DIM)
-
 	def set_offset(self):
 		if self.player.track.alignment == 0:
 				# center align
@@ -246,7 +237,6 @@ class Window:
 		self.stdscr.move(self.height - 1, 0)
 		self.stdscr.clrtoeol()
 		self.stdscr.addstr(self.height - 1, self.pad_offset, prompt)
-		self.set_statusbar()
 		# show cursor and key presses during find
 		curses.echo()
 		curses.curs_set(1)
@@ -301,7 +291,6 @@ class Window:
 					if len(lines_map) > 1:
 						help_output = f"[{chr(self.keys.binds['find-next'])}]=next, [{chr(self.keys.binds['find-prev'])}]=prev"
 						self.stdscr.addstr(self.height - 1, self.pad_offset + len(find_string_output) + len(find_count_output) + 2, help_output)
-					self.set_statusbar()
 
 					# highlight found text
 					line_text = lines[self.current_pos]
@@ -330,7 +319,6 @@ class Window:
 			else:
 				output = ' not found '
 				self.stdscr.insstr(self.height - 1, self.pad_offset + len(prompt) + len(find_string) + 2, output, curses.A_REVERSE)
-				self.set_statusbar()
 				# timeout or key press
 				self.stdscr.timeout(5000)
 				key = self.stdscr.getch()
@@ -373,7 +361,6 @@ class Window:
 				self.keys.input(self, key)
 
 				self.set_titlebar()
-				self.set_statusbar()
 				self.stdscr.refresh()
 				self.scroll_pad.refresh(self.current_pos, 0, 4, 
 							self.pad_offset, self.height - 2, self.width - 1)
