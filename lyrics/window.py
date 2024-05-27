@@ -208,6 +208,37 @@ class Window:
 				self.stdscr.clrtoeol()
 			self.current_pos -= step
 
+	def find_check_keys(self, key=None, lines_map=[]):
+		if key == self.keys.binds['find-next']:
+			self.stdscr.addstr(self.height - 1, self.width - 3, 'n ')
+			self.stdscr.clrtoeol()
+			# reached end of matches, loop back to start
+			if self.find_position + 1 >= len(lines_map):
+				self.find_position = 0
+			else:
+				self.find_position += 1
+			return True
+		elif key == self.keys.binds['find-prev']:
+			self.stdscr.addstr(self.height - 1, self.width - 3, 'p ')
+			self.stdscr.clrtoeol()
+			if self.find_position - 1 < 0:
+				self.find_position = len(lines_map) - 1
+			else:
+				self.find_position -= 1
+			return True
+		# other keys for more accessibility
+		elif key == self.keys.binds['down']:
+			self.scroll_down()
+		elif key == self.keys.binds['up']:
+			self.scroll_up()
+		elif key == self.keys.binds['step-down']:
+			self.scroll_down(self.keys.binds['step-size'])
+		elif key == self.keys.binds['step-up']:
+			self.scroll_up(self.keys.binds['step-size'])
+		elif key == self.keys.binds['find']:
+			self.find()
+		return False
+
 	def find(self):
 		# wait for input
 		self.stdscr.timeout(-1)
@@ -291,46 +322,18 @@ class Window:
 					# after finding a match in a line, stop, wait for input
 					self.stdscr.timeout(10000)
 					key = self.stdscr.getch()
+					result = self.find_check_keys(key, lines_map)
+					if not result:
+						break
 
-					if key == self.keys.binds['find-next']:
-						self.stdscr.addstr(self.height - 1, self.width - 3, 'n ')
-						self.stdscr.clrtoeol()
-						# reached end of matches, loop back to start
-						if self.find_position+1 >= len(lines_map):
-							self.find_position = 0
-						else:
-							self.find_position += 1
-					elif key == self.keys.binds['find-prev']:
-						self.stdscr.addstr(self.height - 1, self.width - 3, 'p ')
-						self.stdscr.clrtoeol()
-						if self.find_position-1 < 0:
-							self.find_position = len(lines_map)-1
-						else:
-							self.find_position -= 1
-					# other keys for more accessibility
-					elif key == self.keys.binds['down']:
-						self.scroll_down()
-						break
-					elif key == self.keys.binds['up']:
-						self.scroll_up()
-						break
-					elif key == self.keys.binds['step-down']:
-						self.scroll_down(self.keys.binds['step-size'])
-						break
-					elif key == self.keys.binds['step-up']:
-						self.scroll_up(self.keys.binds['step-size'])
-						break
-					elif key == self.keys.binds['find']:
-						self.find()
-						break
-					else:
-						break
 			else:
-				output = ' NOT FOUND! '
-				self.stdscr.insstr(self.height - 1, self.width - len(output), output, curses.A_REVERSE)
+				output = ' not found '
+				self.stdscr.insstr(self.height - 1, self.pad_offset + len(prompt) + len(find_string) + 2, output, curses.A_REVERSE)
+				self.set_statusbar()
 				# timeout or key press
 				self.stdscr.timeout(5000)
-				self.stdscr.getch()
+				key = self.stdscr.getch()
+				self.find_check_keys(key, lines_map)
 
 		# clear search line
 		self.stdscr.clear()
