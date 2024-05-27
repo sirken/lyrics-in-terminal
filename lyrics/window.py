@@ -243,8 +243,9 @@ class Window:
 		# wait for input
 		self.stdscr.timeout(-1)
 		prompt = ':'
-		self.stdscr.addstr(self.height - 1, self.pad_offset, prompt)
+		self.stdscr.move(self.height - 1, 0)
 		self.stdscr.clrtoeol()
+		self.stdscr.addstr(self.height - 1, self.pad_offset, prompt)
 		self.set_statusbar()
 		# show cursor and key presses during find
 		curses.echo()
