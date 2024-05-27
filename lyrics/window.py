@@ -214,6 +214,7 @@ class Window:
 		prompt = ':'
 		self.stdscr.addstr(self.height - 1, self.pad_offset, prompt)
 		self.stdscr.clrtoeol()
+		self.set_statusbar()
 		# show cursor and key presses during find
 		curses.echo()
 		curses.curs_set(1)
@@ -259,17 +260,21 @@ class Window:
 					self.stdscr.refresh()
 					self.scroll_pad.refresh(self.current_pos, 0, 4, self.pad_offset, self.height - 2, self.width - 1)
 
+					# find & status bar output
 					find_string_output = f' {find_string} '
 					find_count_output = f" {self.find_position + 1}/{len(lines_map)} "
-					help_output = f"[{chr(self.keys.binds['find-next'])}]=next, [{chr(self.keys.binds['find-prev'])}]=prev"
 					self.stdscr.addstr(self.height - 1, self.pad_offset, find_string_output, curses.A_REVERSE)
-					self.stdscr.insstr(self.height - 1, self.width - len(find_count_output), find_count_output, curses.A_REVERSE)
+					self.stdscr.insstr(self.height - 1, self.pad_offset + len(find_string_output) + 1, find_count_output)
+					# multiple matches, show next/prev
+					if len(lines_map) > 1:
+						help_output = f"[{chr(self.keys.binds['find-next'])}]=next, [{chr(self.keys.binds['find-prev'])}]=prev"
+						self.stdscr.addstr(self.height - 1, self.pad_offset + len(find_string_output) + len(find_count_output) + 2, help_output)
+					self.set_statusbar()
 
 					# highlight found text
 					line_text = lines[self.current_pos]
-					# case-insensitive
+					# case-insensitive, [4, 5, 21]
 					found_index_list = [i for i in range(len(line_text)) if line_text.lower().startswith(find_string.lower(), i)]
-
 					# loop over each character in the line, highlight found strings
 					highlight_end = -1
 					for cpos, char in enumerate(line_text):
@@ -282,10 +287,6 @@ class Window:
 						elif highlight_end > cpos:
 							attr = curses.A_REVERSE
 						self.stdscr.addch(4, self.pad_offset + cpos, char, attr)
-
-					# multiple matches, show next/prev help
-					if len(lines_map) > 1:
-						self.stdscr.addstr(self.height - 1, self.width - len(find_count_output) - len(help_output) - 2, help_output)
 
 					# after finding a match in a line, stop, wait for input
 					self.stdscr.timeout(10000)
